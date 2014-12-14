@@ -3,90 +3,101 @@
 
 #include "heaps.hpp"
 
-class SkewHeap : public IHeap
+namespace NMeldableHeaps
 {
-    struct Node
+    class SkewHeap : public IHeap
     {
-        int key;
-        Node *left, *right;
-        Node(int key) : key(key), left(NULL), right(NULL)
+        struct Node
+        {
+            int key;
+            Node *left, *right;
+            Node(int key) : key(key), left(NULL), right(NULL)
+            {
+            }
+            ~Node()
+            {
+                if (left)
+                {
+                    delete left;
+                }
+                if (right)
+                {
+                    delete right;
+                }
+            }
+        };
+        
+        Node *root;
+        size_t size_;
+        
+        static Node * meld_(Node *first, Node *second)
+        {
+            if (!first || !second)
+            {
+                return (first ? first : second);
+            }
+            if (first->key > second->key)
+            {
+                std::swap(first, second);
+            }
+            first->right = meld_(first->right, second);
+            std::swap(first->left, first->right);
+            return first;
+        }
+        
+    public:
+        SkewHeap() : root(NULL)
         {
         }
-        ~Node()
+        
+        void meld(IHeap &heap)
         {
-            if (left)
+            try
             {
-                delete left;
+                size_ += heap.size();
+                SkewHeap &skewHeap = dynamic_cast<SkewHeap &> (heap);
+                meld_(root, skewHeap.root);
             }
-            if (right)
+            catch (const std::bad_cast &)
             {
-                delete right;
+                throw IncorrectMeldException();
             }
+        }
+        
+        void insert(int key)
+        {
+            root = meld_(root, new Node(key));
+            ++size_;
+        }
+        
+        int getMinimalElement() const
+        {
+            if (!root)
+            {
+                throw EmptyHeapException();
+            }
+            return root->key;
+        }
+        
+        int extractMin()
+        {
+            if (!root)
+            {
+                throw EmptyHeapException();
+            }
+            --size_;
+            int result = root->key;
+            Node *newRoot = meld_(root->left, root->right);
+            root->left = root->right = NULL;
+            delete root;
+            root = newRoot;
+            return result;
+        }
+        
+        size_t size() const
+        {
+            return size_;
         }
     };
-    
-    Node *root;
-    
-    static Node * Meld_(Node *first, Node *second)
-    {
-        if (!first || !second)
-        {
-            return (first ? first : second);
-        }
-        if (first->key > second->key)
-        {
-            std::swap(first, second);
-        }
-        first->right = Meld_(first->right, second);
-        std::swap(first->left, first->right);
-        return first;
-    }
-    
-public:
-    SkewHeap() : root(NULL)
-    {
-    }
-    
-    void Meld(IHeap &heap)
-    {
-        try
-        {
-            SkewHeap &skewHeap = dynamic_cast<SkewHeap &> (heap);
-            Meld_(root, skewHeap.root);
-        }
-        catch (const std::bad_cast &)
-        {
-            throw IncorrectMeldException();
-        }
-    }
-    
-    void insert(int key)
-    {
-        root = Meld_(root, new Node(key));
-    }
-    
-    int getMinimalElement() const
-    {
-        if (!root)
-        {
-            throw EmptyHeapException();
-        }
-        return root->key;
-    }
-    
-    int extractMin()
-    {
-        if (!root)
-        {
-            throw EmptyHeapException();
-        }
-        int result = root->key;
-        Node *newRoot = Meld_(root->left, root->right);
-        root->left = root->right = NULL;
-        delete root;
-        root = newRoot;
-        return result;
-    }
 };
-
 #endif
