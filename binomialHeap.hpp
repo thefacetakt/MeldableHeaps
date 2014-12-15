@@ -78,7 +78,7 @@ namespace NMeldableHeaps
             }
         }
         
-        BinomialHeap(int key)
+        BinomialHeap(int key) : size_(1)
         {
             trees.push_back(new BinomialTree(key));
             minimalTree = trees[0U];
@@ -86,7 +86,7 @@ namespace NMeldableHeaps
         
         
         //makes a heap from tree root's children and deletes root
-        BinomialHeap(BinomialTree *tree, size_t size_) : size_(size_)
+        BinomialHeap(BinomialTree *tree, size_t size_) : size_(size_ - 1)
         {
             minimalTree = NULL;
             if (tree)
@@ -109,7 +109,7 @@ namespace NMeldableHeaps
         }
         
     public:
-        BinomialHeap() : minimalTree(NULL)
+        BinomialHeap() : minimalTree(NULL) , size_(0)
         {
         }
         
@@ -164,7 +164,6 @@ namespace NMeldableHeaps
         {
             BinomialHeap temp(key);
             meld(temp);
-            ++size_;
         }
         
         int extractMin()
@@ -182,13 +181,12 @@ namespace NMeldableHeaps
                         break;
                     }
                 }
-                
+                size_ -= (1U << minimalTreeIndex);
                 BinomialHeap temp(minimalTree, (1U << minimalTreeIndex));
                 
                 trees[minimalTreeIndex] = NULL;
                 
                 meld(temp);
-                --size_;
                 return result;
             }
             throw EmptyHeapException();

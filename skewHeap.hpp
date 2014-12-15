@@ -46,7 +46,7 @@ namespace NMeldableHeaps
         }
         
     public:
-        SkewHeap() : root(NULL)
+        SkewHeap() : root(NULL), size_(0)
         {
         }
         
@@ -56,7 +56,7 @@ namespace NMeldableHeaps
             {
                 size_ += heap.size();
                 SkewHeap &skewHeap = dynamic_cast<SkewHeap &> (heap);
-                meld_(root, skewHeap.root);
+                root = meld_(root, skewHeap.root);
             }
             catch (const std::bad_cast &)
             {

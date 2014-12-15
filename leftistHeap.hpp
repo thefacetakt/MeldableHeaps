@@ -64,7 +64,7 @@ namespace NMeldableHeaps
         }
         
     public:
-        LeftistHeap() : root(NULL)
+        LeftistHeap() : root(NULL), size_(0)
         {
         }
         
@@ -74,7 +74,7 @@ namespace NMeldableHeaps
             {
                 size_ += heap.size();
                 LeftistHeap &leftistHeap = dynamic_cast<LeftistHeap &> (heap);
-                meld_(root, leftistHeap.root);
+                root = meld_(root, leftistHeap.root);
             }
             catch (const std::bad_cast &)
             {
