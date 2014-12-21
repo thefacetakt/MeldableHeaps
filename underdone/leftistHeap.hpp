@@ -1,32 +1,60 @@
-#ifndef _SKEW_HEAP
-#define _SKEW_HEAP
+#ifndef _LEFTIST_HEAP
+#define _LEFTIST_HEAP
 
 #include "leftistOrSkewHeap.hpp"
 
-
 namespace NMeldableHeaps
 {
-    class SkewHeap : public LeftistOrSkewHeap  
+    class LeftistHeap : public LeftistOrSkewHeap
     {
-        Node * meld_(Node *&first, Node *&second)
+        struct Node : public LeftistOrSkewHeap::Node
         {
-            LeftistOrSkewHeap::meld_(first, second);
-            std::swap(first->left, first->right);
+            size_t rank;
+            explicit Node(int key) : LeftistOrSkewHeap::Node(key), rank(1) 
+            {
+            }
+        };
+        
+        size_t rankOf(LeftistHeap::Node *v)
+        {
+            return (v ? v->rank : 0);
+        }
+        
+        void recalc(Node *v)
+        {
+            if (v)
+            {
+                v->rank = 1 + rankOf(v->right);
+            }
+        }
+        
+        Node * meld_(LeftistHeap::Node *&first, LeftistHeap::Node *&second)
+        {
+            LeftistOrSkewHeap::meld_(dynamic_cast<LeftistOrSkewHeap::Node *>(first), dynamic_cast<LeftistOrSkewHeap::Node *>(second));
+            if (rankOf(first->left) < rankOf(first->right))
+            {
+                std::swap(first->left, first->right);
+            }
+            recalc(first);
             return first;
+        }
+    public:
+        LeftistHeap() : LeftistOrSkewHeap() 
+        {
         }
     };
 };
-
 /*
 namespace NMeldableHeaps
 {
-    class SkewHeap : public IHeap
+    class LeftistHeap : public IHeap
     {
         struct Node
         {
             int key;
+            size_t rank;
             Node *left, *right;
-            explicit Node(int key) : key(key), left(NULL), right(NULL)
+            explicit Node(int key) : key(key), rank(1), left(NULL), right(NULL)
             {
             }
             ~Node()
@@ -39,6 +67,19 @@ namespace NMeldableHeaps
         Node *root;
         size_t size_;
         
+        static size_t rankOf(Node *v)
+        {
+            return (v ? v->rank : 0);
+        }
+        
+        static void recalc(Node *v)
+        {
+            if (v)
+            {
+                v->rank = 1 + rankOf(v->right);
+            }
+        }
+        
         static Node * meld_(Node *first, Node *second)
         {
             if (!first || !second)
@@ -50,13 +91,17 @@ namespace NMeldableHeaps
                 std::swap(first, second);
             }
             first->right = meld_(first->right, second);
-            std::swap(first->left, first->right);
+            if (rankOf(first->left) < rankOf(first->right))
+            {
+                std::swap(first->left, first->right);
+            }
+            recalc(first);
             second = NULL;
             return first;
         }
         
     public:
-        SkewHeap() : root(NULL), size_(0)
+        LeftistHeap() : root(NULL), size_(0)
         {
         }
         
@@ -65,8 +110,8 @@ namespace NMeldableHeaps
             try
             {
                 size_ += heap.size();
-                SkewHeap &skewHeap = dynamic_cast<SkewHeap &> (heap);
-                root = meld_(root, skewHeap.root);
+                LeftistHeap &leftistHeap = dynamic_cast<LeftistHeap &> (heap);
+                root = meld_(root, leftistHeap.root);
             }
             catch (const std::bad_cast &)
             {

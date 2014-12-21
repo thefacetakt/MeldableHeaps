@@ -1,35 +1,21 @@
-#ifndef _SKEW_HEAP
-#define _SKEW_HEAP
+#ifndef _LEFTIST_OR_SKEW_HEAP
+#define _LEFTIST_OR_SKEW_HEAP
 
-#include "leftistOrSkewHeap.hpp"
-
+#include "heaps.hpp"
 
 namespace NMeldableHeaps
 {
-    class SkewHeap : public LeftistOrSkewHeap  
+    class LeftistOrSkewHeap : public IHeap
     {
-        Node * meld_(Node *&first, Node *&second)
-        {
-            LeftistOrSkewHeap::meld_(first, second);
-            std::swap(first->left, first->right);
-            return first;
-        }
-    };
-};
-
-/*
-namespace NMeldableHeaps
-{
-    class SkewHeap : public IHeap
-    {
-        struct Node
+    protected:
+        virtual struct Node
         {
             int key;
             Node *left, *right;
             explicit Node(int key) : key(key), left(NULL), right(NULL)
             {
             }
-            ~Node()
+            virtual ~Node()
             {
                 delete left;
                 delete right;
@@ -39,7 +25,7 @@ namespace NMeldableHeaps
         Node *root;
         size_t size_;
         
-        static Node * meld_(Node *first, Node *second)
+        virtual Node * meld_(Node *&first, Node *&second)
         {
             if (!first || !second)
             {
@@ -50,13 +36,16 @@ namespace NMeldableHeaps
                 std::swap(first, second);
             }
             first->right = meld_(first->right, second);
-            std::swap(first->left, first->right);
             second = NULL;
+            /*
+            
+            std::swap(first->left, first->right);
             return first;
+            */
         }
         
     public:
-        SkewHeap() : root(NULL), size_(0)
+        LeftistOrSkewHeap() : root(NULL), size_(0)
         {
         }
         
@@ -65,7 +54,7 @@ namespace NMeldableHeaps
             try
             {
                 size_ += heap.size();
-                SkewHeap &skewHeap = dynamic_cast<SkewHeap &> (heap);
+                LeftistOrSkewHeap &skewHeap = dynamic_cast<LeftistOrSkewHeap &> (heap);
                 root = meld_(root, skewHeap.root);
             }
             catch (const std::bad_cast &)
@@ -76,7 +65,8 @@ namespace NMeldableHeaps
         
         void insert(int key)
         {
-            root = meld_(root, new Node(key));
+            Node *temp = new Node(key);
+            root = meld_(root, temp);
             ++size_;
         }
         
@@ -108,7 +98,11 @@ namespace NMeldableHeaps
         {
             return size_;
         }
+        
+        virtual ~LeftistOrSkewHeap() = 0;
     };
+    LeftistOrSkewHeap::~LeftistOrSkewHeap() 
+    {
+    }
 };
-*/
 #endif

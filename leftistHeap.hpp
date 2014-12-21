@@ -1,8 +1,50 @@
 #ifndef _LEFTIST_HEAP
 #define _LEFTIST_HEAP
 
-#include "heaps.hpp"
+#include "leftistOrSkewHeap.hpp"
 
+namespace NMeldableHeaps
+{
+    class LeftistHeap : public LeftistOrSkewHeap
+    {
+        struct Node : public LeftistOrSkewHeap::Node
+        {
+            size_t rank;
+            explicit Node(int key) : LeftistOrSkewHeap::Node(key), rank(1) 
+            {
+            }
+        };
+        
+        size_t rankOf(LeftistHeap::Node *v)
+        {
+            return (v ? v->rank : 0);
+        }
+        
+        void recalc(Node *v)
+        {
+            if (v)
+            {
+                v->rank = 1 + rankOf(v->right);
+            }
+        }
+        
+        Node * meld_(LeftistHeap::Node *&first, LeftistHeap::Node *&second)
+        {
+            LeftistOrSkewHeap::meld_(first, second);
+            if (rankOf(first->left) < rankOf(first->right))
+            {
+                std::swap(first->left, first->right);
+            }
+            recalc(first);
+            return first;
+        }
+    public:
+        LeftistHeap() : LeftistOrSkewHeap() 
+        {
+        }
+    };
+};
+/*
 namespace NMeldableHeaps
 {
     class LeftistHeap : public IHeap
@@ -12,19 +54,13 @@ namespace NMeldableHeaps
             int key;
             size_t rank;
             Node *left, *right;
-            Node(int key) : key(key), rank(1), left(NULL), right(NULL)
+            explicit Node(int key) : key(key), rank(1), left(NULL), right(NULL)
             {
             }
             ~Node()
             {
-                if (left)
-                {
-                    delete left;
-                }
-                if (right)
-                {
-                    delete right;
-                }
+                delete left;
+                delete right;
             }
         };
         
@@ -60,6 +96,7 @@ namespace NMeldableHeaps
                 std::swap(first->left, first->right);
             }
             recalc(first);
+            second = NULL;
             return first;
         }
         
@@ -118,4 +155,5 @@ namespace NMeldableHeaps
         }
     };
 };
+*/
 #endif

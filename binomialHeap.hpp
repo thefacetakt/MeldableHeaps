@@ -18,7 +18,7 @@ namespace NMeldableHeaps
             BinomialTree *lastDescendant;
             BinomialTree *brother;
             
-            BinomialTree(int key) : key(key), lastDescendant(NULL), brother(NULL)
+            explicit BinomialTree(int key) : key(key), lastDescendant(NULL), brother(NULL)
             {
             }
             
@@ -29,25 +29,20 @@ namespace NMeldableHeaps
             
             ~BinomialTree()
             {
-                if (lastDescendant)
-                {
-                    delete lastDescendant;
-                }
-                if (brother)
-                {
-                    delete brother;
-                }
+                delete lastDescendant;
+                delete brother;
             }
         };
+        
         BinomialTree *minimalTree;
+        
+        std::vector <BinomialTree *> trees;
+        size_t size_;
         
         int minimalElementOf(BinomialTree *tree)
         {
             return (tree ? tree->getMinimalElement() : INT_MAX);
         }
-        
-        std::vector <BinomialTree *> trees;
-        size_t size_;
         
         BinomialTree * meldSimilar(BinomialTree *first, BinomialTree *second)
         {
@@ -78,7 +73,7 @@ namespace NMeldableHeaps
             }
         }
         
-        BinomialHeap(int key) : size_(1)
+        explicit BinomialHeap(int key) : size_(1)
         {
             trees.push_back(new BinomialTree(key));
             minimalTree = trees[0U];
