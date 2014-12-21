@@ -37,20 +37,22 @@ namespace NMeldableHeaps
             return message;
         }
     };
-};
-
-#include "binomialHeap.hpp"
-#include "leftistHeap.hpp"
-#include "skewHeap.hpp"
-
-namespace NMeldableHeaps
-{
+    
     enum EHeapType
     {
         EM_BINOMIAL,
         EM_LEFTIST,
         EM_SKEW
     };
+};
+
+#include "binomialHeap.hpp"
+#include "leftistHeap.hpp"
+//#include "skewHeap.hpp"
+
+namespace NMeldableHeaps
+{
+    
 
     IHeap *generateNewHeap(EHeapType heap)
     {
@@ -61,7 +63,7 @@ namespace NMeldableHeaps
             case EM_LEFTIST:
                 return new LeftistHeap();
             case EM_SKEW:
-                return new SkewHeap();
+                return new BinomialHeap();
         }
     }
 };

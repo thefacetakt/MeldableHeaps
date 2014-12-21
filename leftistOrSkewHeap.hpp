@@ -5,27 +5,32 @@
 
 namespace NMeldableHeaps
 {
-    class LeftistOrSkewHeap : public IHeap
+    template <EHeapType heapType>
+    struct Node
     {
-    protected:
-        struct Node
-        {
-            int key;
-            Node *left, *right;
-            explicit Node(int key) : key(key), left(NULL), right(NULL)
-            {
-            }
-            virtual ~Node()
-            {
-                delete left;
-                delete right;
-            }
-        };
+        static_assert(heapType == EM_LEFTIST || heapType == EM_SKEW, "UNSUPPORTED HEAP TYPE");
         
-        Node *root;
+        int key;
+        Node *left, *right;
+        explicit Node(int key) : key(key), left(NULL), right(NULL)
+        {
+        }
+        virtual ~Node()
+        {
+            delete left;
+            delete right;
+        }
+    };
+    
+    template <EHeapType heapType>
+    class LeftistOrSkewHeap : public IHeap
+    {   
+        static_assert(heapType == EM_LEFTIST || heapType == EM_SKEW, "UNSUPPORTED HEAP TYPE");
+        
+        Node<heapType> *root;
         size_t size_;
         
-        virtual Node * meld_(Node *&first, Node *&second)
+        void firstStepOfMeld(Node<heapType> *&first, Node<heapType> *&second)
         {
             if (!first || !second)
             {
@@ -34,14 +39,16 @@ namespace NMeldableHeaps
             if (first->key > second->key)
             {
                 std::swap(first, second);
-            }
+            }            
             first->right = meld_(first->right, second);
             second = NULL;
-            /*
-            
+        }
+        
+        Node<heapType> * meld_(Node<heapType> *&first, Node<heapType> *&second)
+        {
+            firstStepOfMeld(first, second);
             std::swap(first->left, first->right);
             return first;
-            */
         }
         
     public:
@@ -49,7 +56,7 @@ namespace NMeldableHeaps
         {
         }
         
-        virtual void meld(IHeap &heap)
+        void meld(IHeap &heap)
         {
             try
             {
@@ -63,14 +70,14 @@ namespace NMeldableHeaps
             }
         }
         
-        virtual void insert(int key)
+        void insert(int key)
         {
-            Node *temp = new Node(key);
+            Node<heapType> *temp = new Node<heapType>(key);
             root = meld_(root, temp);
             ++size_;
         }
         
-        virtual int getMinimalElement() const
+        int getMinimalElement() const
         {
             if (!root)
             {
@@ -79,14 +86,14 @@ namespace NMeldableHeaps
             return root->key;
         }
         
-        virtual int extractMin()
+        int extractMin()
         {
             if (!root)
             {
                 throw EmptyHeapException();
             }
             int result = root->key;
-            Node *newRoot = meld_(root->left, root->right);
+            Node<heapType> *newRoot = meld_(root->left, root->right);
             root->left = root->right = NULL;
             delete root;
             root = newRoot;
@@ -99,10 +106,10 @@ namespace NMeldableHeaps
             return size_;
         }
         
-        virtual ~LeftistOrSkewHeap() = 0;
+        //virtual ~LeftistOrSkewHeap() = 0;
     };
-    LeftistOrSkewHeap::~LeftistOrSkewHeap() 
-    {
-    }
+//     LeftistOrSkewHeap::~LeftistOrSkewHeap() 
+//     {
+//     }
 };
 #endif

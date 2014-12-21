@@ -5,44 +5,108 @@
 
 namespace NMeldableHeaps
 {
-    class LeftistHeap : public LeftistOrSkewHeap
+//     class LeftistHeap : public LeftistOrSkewHeap
+//     {
+//         struct Node : public LeftistOrSkewHeap::Node
+//         {
+//             size_t rank;
+//             explicit Node(int key) : LeftistOrSkewHeap::Node(key), rank(1) 
+//             {
+//             }
+//         };
+//         
+//         size_t rankOf(LeftistHeap::Node *v)
+//         {
+//             return (v ? v->rank : 0);
+//         }
+//         
+//         void recalc(Node *v)
+//         {
+//             if (v)
+//             {
+//                 v->rank = 1 + rankOf(v->right);
+//             }
+//         }
+//         
+//         Node * meld_(LeftistHeap::Node *&first, LeftistHeap::Node *&second)
+//         {
+//             LeftistOrSkewHeap::meld_(first, second);
+//             if (rankOf(first->left) < rankOf(first->right))
+//             {
+//                 std::swap(first->left, first->right);
+//             }
+//             recalc(first);
+//             return first;
+//         }
+//     public:
+//         LeftistHeap() : LeftistOrSkewHeap() 
+//         {
+//         }
+//     };
+    template<>
+    struct Node<EM_LEFTIST>
     {
-        struct Node : public LeftistOrSkewHeap::Node
+        int key;
+        size_t rank;
+        Node *left, *right;
+        explicit Node(int key) : key(key), rank(1), left(NULL), right(NULL)
         {
-            size_t rank;
-            explicit Node(int key) : LeftistOrSkewHeap::Node(key), rank(1) 
-            {
-            }
-        };
-        
-        size_t rankOf(LeftistHeap::Node *v)
-        {
-            return (v ? v->rank : 0);
         }
-        
-        void recalc(Node *v)
+        virtual ~Node()
         {
-            if (v)
-            {
-                v->rank = 1 + rankOf(v->right);
-            }
+            delete left;
+            delete right;
         }
-        
-        Node * meld_(LeftistHeap::Node *&first, LeftistHeap::Node *&second)
+    };
+    
+    size_t rankOf(Node<EM_LEFTIST> *v)
+    {
+        return (v ? v->rank : 0);
+    }
+    
+    void recalc(Node<EM_LEFTIST> *v)
+    {
+        if (v)
         {
-            LeftistOrSkewHeap::meld_(first, second);
+            v->rank = 1 + rankOf(v->right);
+        }
+    }
+    
+    template<>
+    class LeftistOrSkewHeap<EM_LEFTIST>
+    {    
+        Node<EM_LEFTIST> * meld_(Node<EM_LEFTIST> *&first, Node<EM_LEFTIST> *&second)
+        {
+            if (!first || !second)
+            {
+                return (first ? first : second);
+            }
+            if (first->key > second->key)
+            {
+                std::swap(first, second);
+            }
+            first->right = meld_(first->right, second);
             if (rankOf(first->left) < rankOf(first->right))
             {
                 std::swap(first->left, first->right);
             }
             recalc(first);
+            second = NULL;
             return first;
         }
-    public:
-        LeftistHeap() : LeftistOrSkewHeap() 
-        {
-        }
     };
+    
+    
+    typedef LeftistOrSkewHeap<EM_LEFTIST> LeftistHeap;
+    
+    int createSmt()
+    {
+        LeftistHeap *x = new LeftistHeap();
+        x->insert(5);
+        return x->getMinimalElement();
+    }
+    
+
 };
 /*
 namespace NMeldableHeaps
