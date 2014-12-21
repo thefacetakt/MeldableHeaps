@@ -12,12 +12,12 @@ using namespace NMeldableHeaps;
 
 namespace NMeldableHeapsTests
 {
-    class arrayOfHeaps
+    class ArrayOfHeps
     {
         std::vector <IHeap *> body;
         EHeapType heapType;
     public:
-        arrayOfHeaps(EHeapType heapType) : heapType(heapType)
+        explicit ArrayOfHeps(EHeapType heapType) : heapType(heapType)
         {
         }
         
@@ -57,12 +57,12 @@ namespace NMeldableHeapsTests
             body.pop_back();
         }
         
-        size_t size()
+        size_t size() const
         {
             return body.size();
         }
         
-        size_t size(size_t index)
+        size_t size(size_t index) const
         {
             return body[index]->size();
         }
@@ -80,48 +80,45 @@ namespace NMeldableHeapsTests
     
     enum EQueryType
     {
-        INSERT = 0,
-        GET_MINIMAL_ELEMENT = 1,
-        EXTRACT_MIN = 2,
-        MELD = 3,
-        ADD_HEAP = 4
+        INSERT,
+        GET_MINIMAL_ELEMENT,
+        EXTRACT_MIN,
+        MELD,
+        ADD_HEAP,
+        SIZE,
+        OPERATIONS_NUMBER
     };
-    
-    const unsigned int EQueryTypeSize = 5;
     
     TestResults randomTest(EHeapType heapType, size_t numberOfQueries, size_t seed)
     {
         srand(seed);
-        arrayOfHeaps heaps(heapType);
+        
+        ArrayOfHeps heaps(heapType);
         heaps.addHeap(rand());
         TestResults result;
         
         clock_t startTime = clock();
         for (size_t i = 1; i < numberOfQueries; ++i)
         {
-            //EQueryType currentQueryType(rand() % EQueryTypeSize);
-            size_t currentQueryType = rand() % EQueryTypeSize;
+            EQueryType currentQueryType = static_cast<EQueryType>(rand() % OPERATIONS_NUMBER);
             size_t index;
             switch (currentQueryType)
             {
-                case /*INSERT*/0:
+                case INSERT:
                     heaps.insert(rand() % heaps.size(), rand());
-                break; case /*GET_MINIMAL_ELEMENT*/1:
+                break; case GET_MINIMAL_ELEMENT:
                     index = rand() % heaps.size();
-                    if (heaps.size(index))
-                    {
-                        result.push(heaps.getMinimalElement(index));
-                    }
-                break; case /*EXTRACT_MIN*/2:
+                    result.push(heaps.size(index) ? heaps.getMinimalElement(index) : 0);
+                break; case EXTRACT_MIN:
                     index = rand() % heaps.size();
-                    if (heaps.size(index))
-                    {
-                        result.push(heaps.extractMin(index));
-                    }
-                break; case /*MELD*/3:
+                    result.push(heaps.size(index) ? heaps.extractMin(index) : 0);
+                break; case MELD:
                     heaps.meld(rand() % heaps.size(), rand() % heaps.size());
-                break; case /*ADD_HEAP*/4:
+                break; case ADD_HEAP:
                     heaps.addHeap(rand());
+                break; case SIZE:
+                    index = rand() % heaps.size();
+                    result.push(heaps.size(index));
             }
         }
         result.executionTime = (double)(clock() - startTime) / CLOCKS_PER_SEC;

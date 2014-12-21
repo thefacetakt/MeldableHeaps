@@ -1,103 +1,30 @@
 #ifndef _SKEW_HEAP
 #define _SKEW_HEAP
 
-#include "heaps.hpp"
+#include "leftistOrSkewHeap.hpp"
 
 namespace NMeldableHeaps
 {
-    class SkewHeap : public IHeap
-    {
-        struct Node
-        {
-            int key;
-            Node *left, *right;
-            Node(int key) : key(key), left(NULL), right(NULL)
-            {
-            }
-            ~Node()
-            {
-                if (left)
-                {
-                    delete left;
-                }
-                if (right)
-                {
-                    delete right;
-                }
-            }
-        };
-        
-        Node *root;
-        size_t size_;
-        
-        static Node * meld_(Node *first, Node *second)
-        {
-            if (!first || !second)
-            {
-                return (first ? first : second);
-            }
-            if (first->key > second->key)
-            {
-                std::swap(first, second);
-            }
-            first->right = meld_(first->right, second);
-            std::swap(first->left, first->right);
-            return first;
-        }
-        
+    class SkewNode : public INode
+    {  
     public:
-        SkewHeap() : root(NULL), size_(0)
+        explicit SkewNode(int key) : INode(key)
         {
         }
         
-        void meld(IHeap &heap)
+        void recalc()
         {
-            try
-            {
-                size_ += heap.size();
-                SkewHeap &skewHeap = dynamic_cast<SkewHeap &> (heap);
-                root = meld_(root, skewHeap.root);
-            }
-            catch (const std::bad_cast &)
-            {
-                throw IncorrectMeldException();
-            }
+            std::swap(left, right);
         }
-        
-        void insert(int key)
+    };
+    
+    class SkewHeap : public LeftistOrSkewHeap  
+    {
+        INode *getNewNode(int key)
         {
-            root = meld_(root, new Node(key));
-            ++size_;
-        }
-        
-        int getMinimalElement() const
-        {
-            if (!root)
-            {
-                throw EmptyHeapException();
-            }
-            return root->key;
-        }
-        
-        int extractMin()
-        {
-            if (!root)
-            {
-                throw EmptyHeapException();
-            }
-            --size_;
-            int result = root->key;
-            Node *newRoot = meld_(root->left, root->right);
-            root->left = root->right = NULL;
-            delete root;
-            root = newRoot;
-            return result;
-        }
-        
-        size_t size() const
-        {
-            return size_;
+            return new SkewNode(key);
         }
     };
 };
+
 #endif

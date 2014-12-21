@@ -13,6 +13,9 @@ namespace NMeldableHeaps
         virtual int getMinimalElement() const = 0;
         virtual void meld(IHeap &) = 0;
         virtual size_t size() const = 0;
+        virtual ~IHeap() 
+        {
+        }
     };
 
     class IncorrectMeldException: public std::exception
@@ -34,6 +37,13 @@ namespace NMeldableHeaps
             return message;
         }
     };
+    
+    enum EHeapType
+    {
+        EM_BINOMIAL,
+        EM_LEFTIST,
+        EM_SKEW
+    };
 };
 
 #include "binomialHeap.hpp"
@@ -42,13 +52,6 @@ namespace NMeldableHeaps
 
 namespace NMeldableHeaps
 {
-    enum EHeapType
-    {
-        EM_BINOMIAL,
-        EM_LEFTIST,
-        EM_SKEW
-    };
-
     IHeap *generateNewHeap(EHeapType heap)
     {
         switch (heap)
