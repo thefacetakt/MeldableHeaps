@@ -48,12 +48,10 @@ namespace NMeldableHeaps
 
 #include "binomialHeap.hpp"
 #include "leftistHeap.hpp"
-//#include "skewHeap.hpp"
+#include "skewHeap.hpp"
 
 namespace NMeldableHeaps
 {
-    
-
     IHeap *generateNewHeap(EHeapType heap)
     {
         switch (heap)
@@ -63,7 +61,7 @@ namespace NMeldableHeaps
             case EM_LEFTIST:
                 return new LeftistHeap();
             case EM_SKEW:
-                return new BinomialHeap();
+                return new SkewHeap();
         }
     }
 };

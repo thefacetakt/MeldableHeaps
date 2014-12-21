@@ -2,54 +2,67 @@
 #define _LEFTIST_OR_SKEW_HEAP
 
 #include "heaps.hpp"
+#include <typeinfo>
 
 namespace NMeldableHeaps
 {
-    template <EHeapType heapType>
-    struct Node
+    class INode
     {
-        static_assert(heapType == EM_LEFTIST || heapType == EM_SKEW, "UNSUPPORTED HEAP TYPE");
-        
+    protected:
         int key;
-        Node *left, *right;
-        explicit Node(int key) : key(key), left(NULL), right(NULL)
+        INode *left, *right;
+        
+    public:
+        explicit INode(int key) : key(key), left(NULL), right(NULL)
         {
         }
-        virtual ~Node()
+        
+        virtual void recalc() = 0;
+        
+        int getKey() const
         {
-            delete left;
-            delete right;
+            return key;
         }
+        
+        INode *&getRight()
+        {
+            return right;
+        }
+        
+        INode *&getLeft()
+        {
+            return left;
+        }
+        
+        virtual ~INode()
+        {
+        }
+        
     };
     
-    template <EHeapType heapType>
     class LeftistOrSkewHeap : public IHeap
     {   
-        static_assert(heapType == EM_LEFTIST || heapType == EM_SKEW, "UNSUPPORTED HEAP TYPE");
         
-        Node<heapType> *root;
+        INode *root;
         size_t size_;
         
-        void firstStepOfMeld(Node<heapType> *&first, Node<heapType> *&second)
+        INode * meld_(INode *&first, INode *&second)
         {
             if (!first || !second)
             {
                 return (first ? first : second);
             }
-            if (first->key > second->key)
+            if (first->getKey() > second->getKey())
             {
                 std::swap(first, second);
             }            
-            first->right = meld_(first->right, second);
+            first->getRight() = meld_(first->getRight(), second);
+            first->recalc();
             second = NULL;
-        }
-        
-        Node<heapType> * meld_(Node<heapType> *&first, Node<heapType> *&second)
-        {
-            firstStepOfMeld(first, second);
-            std::swap(first->left, first->right);
             return first;
         }
+        
+        virtual INode *getNewNode(int) = 0;
         
     public:
         LeftistOrSkewHeap() : root(NULL), size_(0)
@@ -72,7 +85,7 @@ namespace NMeldableHeaps
         
         void insert(int key)
         {
-            Node<heapType> *temp = new Node<heapType>(key);
+            INode *temp = getNewNode(key);
             root = meld_(root, temp);
             ++size_;
         }
@@ -83,7 +96,7 @@ namespace NMeldableHeaps
             {
                 throw EmptyHeapException();
             }
-            return root->key;
+            return root->getKey();
         }
         
         int extractMin()
@@ -92,9 +105,9 @@ namespace NMeldableHeaps
             {
                 throw EmptyHeapException();
             }
-            int result = root->key;
-            Node<heapType> *newRoot = meld_(root->left, root->right);
-            root->left = root->right = NULL;
+            int result = root->getKey();
+            INode *newRoot = meld_(root->getLeft(), root->getRight());
+            root->getLeft() = root->getRight() = NULL;
             delete root;
             root = newRoot;
             --size_;
@@ -106,10 +119,10 @@ namespace NMeldableHeaps
             return size_;
         }
         
-        //virtual ~LeftistOrSkewHeap() = 0;
+        virtual ~LeftistOrSkewHeap()
+        {
+            delete root;
+        }
     };
-//     LeftistOrSkewHeap::~LeftistOrSkewHeap() 
-//     {
-//     }
 };
 #endif

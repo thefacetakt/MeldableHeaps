@@ -1,42 +1,12 @@
-Yet Another Experimenal branch, which I can't compile
-=====================================================
-
-
-
-In file included from heaps.cpp:1:
-
-In file included from ./tests.hpp:9:
-
-In file included from ./heaps.hpp:50:
-
-./leftistHeap.hpp:105:12: error: no member named 'insert' in 'NMeldableHeaps::LeftistOrSkewHeap<EM_LEFTIST>'
-
-        x->insert(5);
-        
-        ~  ^
-        
-./leftistHeap.hpp:106:19: error: no member named 'getMinimalElement' in 'NMeldableHeaps::LeftistOrSkewHeap<EM_LEFTIST>'
-
-        return x->getMinimalElement();
-        
-               ~  ^
-               
-In file included from heaps.cpp:1:
-
-In file included from ./tests.hpp:9:
-
-./heaps.hpp:64:24: error: cannot initialize return object of type 'NMeldableHeaps::IHeap *' with an rvalue of type 'LeftistHeap *' (aka 'LeftistOrSkewHeap<EM_LEFTIST> *')
-
-                return new LeftistHeap();
-                
-                       ^~~~~~~~~~~~~~~~~
-                       
-In file included from heaps.cpp:1:
-
-./tests.hpp:103:21: warning: enumeration value 'OPERATIONS_NUMBER' not handled in switch [-Wswitch]
-
-            switch (currentQueryType)
-            
-                    ^
-                    
-1 warning and 3 errors generated.
+Heaps Testing Result
+--------------------
+|Test # |# of Queies |Binomial Heap |Leftist Heap |Skew Heap |
+|---------|---------|---------|---------|---------|
+|0|10|0.000|0.000|0.000|
+|1|100|0.000|0.000|0.000|
+|2|1000|0.001|0.000|0.000|
+|3|10000|0.009|0.006|0.004|
+|4|100000|0.108|0.050|0.041|
+|5|1000000|1.009|0.503|0.357|
+|6|10000000|9.747|4.781|4.334|
+Everything went fine

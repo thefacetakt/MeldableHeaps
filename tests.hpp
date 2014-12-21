@@ -85,12 +85,14 @@ namespace NMeldableHeapsTests
         EXTRACT_MIN,
         MELD,
         ADD_HEAP,
+        SIZE,
         OPERATIONS_NUMBER
     };
     
     TestResults randomTest(EHeapType heapType, size_t numberOfQueries, size_t seed)
     {
         srand(seed);
+        
         ArrayOfHeps heaps(heapType);
         heaps.addHeap(rand());
         TestResults result;
@@ -106,20 +108,17 @@ namespace NMeldableHeapsTests
                     heaps.insert(rand() % heaps.size(), rand());
                 break; case GET_MINIMAL_ELEMENT:
                     index = rand() % heaps.size();
-                    if (heaps.size(index))
-                    {
-                        result.push(heaps.getMinimalElement(index));
-                    }
+                    result.push(heaps.size(index) ? heaps.getMinimalElement(index) : 0);
                 break; case EXTRACT_MIN:
                     index = rand() % heaps.size();
-                    if (heaps.size(index))
-                    {
-                        result.push(heaps.extractMin(index));
-                    }
+                    result.push(heaps.size(index) ? heaps.extractMin(index) : 0);
                 break; case MELD:
                     heaps.meld(rand() % heaps.size(), rand() % heaps.size());
                 break; case ADD_HEAP:
                     heaps.addHeap(rand());
+                break; case SIZE:
+                    index = rand() % heaps.size();
+                    result.push(heaps.size(index));
             }
         }
         result.executionTime = (double)(clock() - startTime) / CLOCKS_PER_SEC;

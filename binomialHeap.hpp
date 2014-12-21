@@ -1,11 +1,13 @@
 #ifndef _BINOMIAL_HEAP
 #define _BINOMIAL_HEAP
 
+#include "heaps.hpp"
+
 #include <algorithm>
 #include <climits>
 #include <vector>
 #include <typeinfo>
-#include "heaps.hpp"
+
 
 namespace NMeldableHeaps
 {
