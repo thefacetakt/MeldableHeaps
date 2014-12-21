@@ -36,6 +36,8 @@ namespace NMeldableHeaps
         
         virtual ~INode()
         {
+            delete left;
+            delete right;
         }
         
     };
